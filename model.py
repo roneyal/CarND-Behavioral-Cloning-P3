@@ -61,11 +61,13 @@ print(Y_train.shape)
 
 
 from keras.models import Sequential
-from keras.layers import Flatten, Dense, Lambda, Conv2D, MaxPooling2D
+from keras.layers import Flatten, Dense, Lambda, Conv2D, MaxPooling2D, Cropping2D
 
 model = Sequential()
+model.add(Cropping2D(cropping=((50,20), (0,0)), input_shape=(160,320,3)))
+
 #preprocessing layer (normalization)
-model.add(Lambda(lambda x: (x / 255.0) - 0.5, input_shape=(160,320,3)))
+model.add(Lambda(lambda x: (x / 255.0) - 0.5))
 
 #Convolutional layer 1
 model.add(Conv2D(6, (5,5), activation='relu'))
