@@ -22,13 +22,33 @@ with open(log_file) as csvFile:
 images = []
 measurements = []
 
+
+def add_datum_to_collection(images, image, measurements, measurement):
+    # add to collection
+    images.append(image)
+    measurements.append(measurement)
+    # add flipped image
+    images.append(cv2.flip(image, 1))
+    measurements.append(measurement * -1.0)
+
+
 #load training set to memory (X - images, Y - steering angle)
 for line in lines:
+    #center camera
     relative_img_file = get_relative_path(line[0])
     image = cv2.imread(relative_img_file)
-    images.append(image)
     measurement = float(line[3])
-    measurements.append(measurement)
+    add_datum_to_collection(images, image, measurements, measurement)
+
+    #left
+    relative_img_file = get_relative_path(line[1])
+    image = cv2.imread(relative_img_file)
+    add_datum_to_collection(images, image, measurements, measurement + 0.2)
+
+    #right
+    relative_img_file = get_relative_path(line[2])
+    image = cv2.imread(relative_img_file)
+    add_datum_to_collection(images, image, measurements, measurement - 0.2)
 
 #wrap data in numpy array
 X_train = np.array(images)
@@ -62,6 +82,6 @@ model.add(Dense(84))
 model.add(Dense(1))
 
 model.compile(optimizer='adam', loss='mse')
-model.fit(X_train, Y_train, validation_split=0.2, shuffle=True, epochs=10)
+model.fit(X_train, Y_train, validation_split=0.2, shuffle=True, epochs=5)
 
 model.save('model.h5')
