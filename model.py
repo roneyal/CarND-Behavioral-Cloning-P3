@@ -43,12 +43,12 @@ for line in lines:
     #left
     relative_img_file = get_relative_path(line[1])
     image = cv2.imread(relative_img_file)
-    add_datum_to_collection(images, image, measurements, measurement + 0.2)
+    add_datum_to_collection(images, image, measurements, measurement + 0.25)
 
     #right
     relative_img_file = get_relative_path(line[2])
     image = cv2.imread(relative_img_file)
-    add_datum_to_collection(images, image, measurements, measurement - 0.2)
+    add_datum_to_collection(images, image, measurements, measurement - 0.25)
 
 #wrap data in numpy array
 X_train = np.array(images)
@@ -59,31 +59,39 @@ print(X_train.shape)
 print(Y_train.shape)
 
 
-
+import keras.models
 from keras.models import Sequential
-from keras.layers import Flatten, Dense, Lambda, Conv2D, MaxPooling2D, Cropping2D
+from keras.layers import Flatten, Dense, Lambda, Conv2D, MaxPooling2D, Cropping2D, Dropout
 
-model = Sequential()
-model.add(Cropping2D(cropping=((50,20), (0,0)), input_shape=(160,320,3)))
 
-#preprocessing layer (normalization)
-model.add(Lambda(lambda x: (x / 255.0) - 0.5))
+def create_model():
 
-#Convolutional layer 1
-model.add(Conv2D(6, (5,5), activation='relu'))
-model.add(MaxPooling2D(pool_size=(2,2)))
+    model = Sequential()
+    model.add(Cropping2D(cropping=((70, 10), (0, 0)), input_shape=(160, 320, 3)))
+    # preprocessing layer (normalization)
+    model.add(Lambda(lambda x: (x / 255.0) - 0.5))
+    # Convolutional layer 1
+    model.add(Conv2D(6, (5, 5), activation='relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    # Convolutional layer 2
+    model.add(Conv2D(6, (5, 5), activation='relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
+    # Fully connected layers
+    model.add(Flatten())
+    model.add(Dense(120))
+    model.add(Dropout(0.5))
+    model.add(Dense(84))
+    model.add(Dropout(0.5))
+    model.add(Dense(1))
+    model.compile(optimizer='adam', loss='mse')
 
-#Convolutional layer 2
-model.add(Conv2D(6, (5,5), activation='relu'))
-model.add(MaxPooling2D(pool_size=(2,2), strides=(2,2)))
+    return model
 
-#Fully connected layers
-model.add(Flatten())
-model.add(Dense(120))
-model.add(Dense(84))
-model.add(Dense(1))
 
-model.compile(optimizer='adam', loss='mse')
-model.fit(X_train, Y_train, validation_split=0.2, shuffle=True, epochs=5)
+model = create_model()
+
+#model = keras.models.load_model('model.h5')
+
+model.fit(X_train, Y_train, validation_split=0.2, shuffle=True, epochs=20)
 
 model.save('model.h5')
