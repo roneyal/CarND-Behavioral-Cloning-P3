@@ -1,9 +1,12 @@
 import csv
 import cv2 #open CV
-import numpy as np
+
+import generator
 
 log_file = '../data/driving_log.csv'
 relative_img_path = '../data/IMG/'
+
+BATCH_SIZE = 32
 
 #get relative file path from full path
 def get_relative_path(full_path):
@@ -19,6 +22,14 @@ with open(log_file) as csvFile:
     for line in reader:
         lines.append(line)
 
+
+from sklearn.model_selection import train_test_split
+train_samples, validation_samples = train_test_split(lines, test_size=0.2)
+
+train_generator = generator.generator(train_samples, batch_size=BATCH_SIZE)
+validation_generator = generator.generator(validation_samples, batch_size=BATCH_SIZE)
+
+
 images = []
 measurements = []
 
@@ -33,6 +44,7 @@ def add_datum_to_collection(images, image, measurements, measurement):
 
 
 #load training set to memory (X - images, Y - steering angle)
+'''
 for line in lines:
     #center camera
     relative_img_file = get_relative_path(line[0])
@@ -49,14 +61,14 @@ for line in lines:
     relative_img_file = get_relative_path(line[2])
     image = cv2.imread(relative_img_file)
     add_datum_to_collection(images, image, measurements, measurement - 0.25)
-
+'''
 #wrap data in numpy array
-X_train = np.array(images)
-Y_train = np.array(measurements)
+#X_train = np.array(images)
+#Y_train = np.array(measurements)
 
-print("input shapes:")
-print(X_train.shape)
-print(Y_train.shape)
+#print("input shapes:")
+#print(X_train.shape)
+#print(Y_train.shape)
 
 
 import keras.models
@@ -78,20 +90,25 @@ def create_model():
     model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
     # Fully connected layers
     model.add(Flatten())
-    model.add(Dense(120))
+    model.add(Dense(120, activation='relu'))
     model.add(Dropout(0.5))
-    model.add(Dense(84))
+    model.add(Dense(84, activation='relu'))
     model.add(Dropout(0.5))
     model.add(Dense(1))
     model.compile(optimizer='adam', loss='mse')
 
     return model
 
-
 model = create_model()
 
 #model = keras.models.load_model('model.h5')
 
-model.fit(X_train, Y_train, validation_split=0.2, shuffle=True, epochs=20)
+#model.fit(X_train, Y_train, validation_split=0.2, shuffle=True, epochs=20)
+
+model.fit_generator(train_generator,
+                    steps_per_epoch= (6*len(train_samples)) / BATCH_SIZE,
+                    validation_data=validation_generator,
+                    validation_steps= (6*len(validation_samples)) / BATCH_SIZE,
+                    epochs=5)
 
 model.save('model.h5')
