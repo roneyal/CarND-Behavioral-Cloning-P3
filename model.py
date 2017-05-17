@@ -2,6 +2,7 @@ import csv
 import cv2 #open CV
 
 import generator
+import random
 
 log_file = '../data/driving_log.csv'
 relative_img_path = '../data/IMG/'
@@ -20,7 +21,9 @@ lines = []
 with open(log_file) as csvFile:
     reader = csv.reader(csvFile)
     for line in reader:
-        lines.append(line)
+        angle = float(line[3])
+        if angle > 0.01 or angle < -0.01 or random.uniform(0.0,1.0) < 0.1:
+            lines.append(line)
 
 
 from sklearn.model_selection import train_test_split
@@ -79,21 +82,26 @@ from keras.layers import Flatten, Dense, Lambda, Conv2D, MaxPooling2D, Cropping2
 def create_model():
 
     model = Sequential()
-    model.add(Cropping2D(cropping=((70, 10), (0, 0)), input_shape=(160, 320, 3)))
+    model.add(Cropping2D(cropping=((70, 25), (0, 0)), input_shape=(160, 320, 3)))
     # preprocessing layer (normalization)
     model.add(Lambda(lambda x: (x / 255.0) - 0.5))
     # Convolutional layer 1
-    model.add(Conv2D(6, (5, 5), activation='relu'))
+    model.add(Conv2D(24, (5, 5), activation='relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     # Convolutional layer 2
-    model.add(Conv2D(6, (5, 5), activation='relu'))
+    model.add(Conv2D(36, (5, 5), activation='relu'))
     model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
+    # Convolutional layer 3
+    model.add(Conv2D(48, (5, 5), activation='relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
+    # Convolutional Layer 4
+    model.add(Conv2D(64, (3, 3), activation='relu'))
     # Fully connected layers
     model.add(Flatten())
-    model.add(Dense(120, activation='relu'))
-    model.add(Dropout(0.5))
-    model.add(Dense(84, activation='relu'))
-    model.add(Dropout(0.5))
+    model.add(Dense(100, activation='relu'))
+    model.add(Dropout(0.75))
+    model.add(Dense(50, activation='relu'))
+    model.add(Dropout(0.75))
     model.add(Dense(1))
     model.compile(optimizer='adam', loss='mse')
 
