@@ -22,7 +22,7 @@ with open(log_file) as csvFile:
     reader = csv.reader(csvFile)
     for line in reader:
         angle = float(line[3])
-        if angle > 0.01 or angle < -0.01 or random.uniform(0.0,1.0) < 0.1:
+        if angle > 0.01 or angle < -0.01 or random.uniform(0.0,1.0) < 0.2:
             lines.append(line)
 
 
@@ -117,6 +117,6 @@ model.fit_generator(train_generator,
                     steps_per_epoch= (6*len(train_samples)) / BATCH_SIZE,
                     validation_data=validation_generator,
                     validation_steps= (6*len(validation_samples)) / BATCH_SIZE,
-                    epochs=5)
+                    epochs=20)
 
 model.save('model.h5')
