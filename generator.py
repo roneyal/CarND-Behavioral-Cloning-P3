@@ -6,14 +6,14 @@ import cv2
 relative_img_path = '../data/IMG/'
 
 def add_datum_to_collection(images, image, measurements, measurement):
-    #if random.uniform(0.0, 1.0) < 0.5:
+    if random.uniform(0.0, 1.0) < 0.5:
     # add to collection
-    images.append(image)
-    measurements.append(measurement)
-    #else:
+        images.append(image)
+        measurements.append(measurement)
+    else:
     # add flipped image
-    images.append(cv2.flip(image, 1))
-    measurements.append(measurement * -1.0)
+        images.append(cv2.flip(image, 1))
+        measurements.append(measurement * -1.0)
 
 def generator(samples, batch_size=32):
     num_samples = len(samples)
@@ -40,12 +40,12 @@ def generator(samples, batch_size=32):
 
 
                 rand = random.uniform(0.0,1.0)
-                #if rand < 0.4:
-                add_datum_to_collection(images, center_image, angles, center_angle)
-                #elif rand < 0.7:
-                add_datum_to_collection(images, left_image, angles, left_angle)
-                #else:
-                add_datum_to_collection(images, right_image, angles, right_angle)
+                if rand < 0.4:
+                    add_datum_to_collection(images, center_image, angles, center_angle)
+                elif rand < 0.7:
+                    add_datum_to_collection(images, left_image, angles, left_angle)
+                else:
+                    add_datum_to_collection(images, right_image, angles, right_angle)
 
 
             # trim image to only see section with road
