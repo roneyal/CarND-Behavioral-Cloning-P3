@@ -98,9 +98,9 @@ def create_model():
     model.add(Conv2D(64, (3, 3), activation='relu'))
     # Fully connected layers
     model.add(Flatten())
-    model.add(Dense(100, activation='relu'))
+    model.add(Dense(128, activation='relu'))
     model.add(Dropout(0.75))
-    model.add(Dense(50, activation='relu'))
+    model.add(Dense(74, activation='relu'))
     model.add(Dropout(0.75))
     model.add(Dense(1))
     model.compile(optimizer='adam', loss='mse')
