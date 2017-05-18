@@ -32,52 +32,12 @@ train_samples, validation_samples = train_test_split(lines, test_size=0.2)
 train_generator = generator.generator(train_samples, batch_size=BATCH_SIZE)
 validation_generator = generator.generator(validation_samples, batch_size=BATCH_SIZE)
 
-
 images = []
 measurements = []
-
-
-def add_datum_to_collection(images, image, measurements, measurement):
-    # add to collection
-    images.append(image)
-    measurements.append(measurement)
-    # add flipped image
-    images.append(cv2.flip(image, 1))
-    measurements.append(measurement * -1.0)
-
-
-#load training set to memory (X - images, Y - steering angle)
-'''
-for line in lines:
-    #center camera
-    relative_img_file = get_relative_path(line[0])
-    image = cv2.imread(relative_img_file)
-    measurement = float(line[3])
-    add_datum_to_collection(images, image, measurements, measurement)
-
-    #left
-    relative_img_file = get_relative_path(line[1])
-    image = cv2.imread(relative_img_file)
-    add_datum_to_collection(images, image, measurements, measurement + 0.25)
-
-    #right
-    relative_img_file = get_relative_path(line[2])
-    image = cv2.imread(relative_img_file)
-    add_datum_to_collection(images, image, measurements, measurement - 0.25)
-'''
-#wrap data in numpy array
-#X_train = np.array(images)
-#Y_train = np.array(measurements)
-
-#print("input shapes:")
-#print(X_train.shape)
-#print(Y_train.shape)
-
 
 import keras.models
 from keras.models import Sequential
 from keras.layers import Flatten, Dense, Lambda, Conv2D, MaxPooling2D, Cropping2D, Dropout
-
 
 def create_model():
 
@@ -108,10 +68,6 @@ def create_model():
     return model
 
 model = create_model()
-
-#model = keras.models.load_model('model.h5')
-
-#model.fit(X_train, Y_train, validation_split=0.2, shuffle=True, epochs=20)
 
 model.fit_generator(train_generator,
                     steps_per_epoch= (len(train_samples)) / BATCH_SIZE,
