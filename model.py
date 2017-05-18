@@ -117,6 +117,6 @@ model.fit_generator(train_generator,
                     steps_per_epoch= (6*len(train_samples)) / BATCH_SIZE,
                     validation_data=validation_generator,
                     validation_steps= (6*len(validation_samples)) / BATCH_SIZE,
-                    epochs=20)
+                    epochs=50)
 
 model.save('model.h5')
