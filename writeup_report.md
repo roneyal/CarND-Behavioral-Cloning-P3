@@ -15,6 +15,8 @@ The goals / steps of this project are the following:
 [image3]: ./examples/center_2017_05_18_20_38_29_292.jpg "Recovery Image"
 [image4]: ./examples/center_2017_05_18_20_38_29_373.jpg "Recovery Image"
 [image5]: ./examples/center_2017_05_18_20_38_29_460.jpg "Recovery Image"
+[image6]: ./examples/model.png "Model"
+
 
 
 ## Rubric Points
@@ -84,9 +86,13 @@ The final model architecture (model.py lines 42-66) consisted of a convolution n
 
 1. Cropping 70 pixels from the top and 25 from the bottom
 2. Normalization
-3. Three 5x5 convolutional layers with increasing depth
-4. Another 3x3 convolutional layer
-5. Three fully connected layers, the first two layers with dropout (keep probability of 75%)
+3. Three 5x5 convolutional layers with increasing depth, followed by relu activation and 2x2 mac pooling 
+4. Another 3x3 convolutional layer with relu activation
+5. Three fully connected layers, the first two layers with dropout (keep probability of 75%) and relu activation.
+
+I also created a visualization of the network using Keras plot_model module:
+
+![alt text][image6]
 
 ####3. Creation of the Training Set & Training Process
 

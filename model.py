@@ -38,6 +38,7 @@ measurements = []
 import keras.models
 from keras.models import Sequential
 from keras.layers import Flatten, Dense, Lambda, Conv2D, MaxPooling2D, Cropping2D, Dropout
+from keras.utils import plot_model
 
 def create_model():
 
@@ -68,6 +69,8 @@ def create_model():
     return model
 
 model = create_model()
+
+plot_model(model, to_file='model.png')
 
 model.fit_generator(train_generator,
                     steps_per_epoch= (len(train_samples)) / BATCH_SIZE,
